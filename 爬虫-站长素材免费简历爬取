@@ -1,0 +1,35 @@
+import requests
+from lxml import etree
+import os
+
+if not os.path.exists('./jianlixiazai'):
+    os.mkdir('./jianlixiazai')
+
+if __name__ == '__main__':
+    headers = {
+        "user-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.11 Safari/537.36"
+    }
+    url = 'https://aspx.sc.chinaz.com/query.aspx?keyword=%E5%85%8D%E8%B4%B9&classID=864'
+    huo_qu = requests.get(url=url,headers=headers).text
+    shu_ju = etree.HTML(huo_qu)
+    xin_shu_ju =shu_ju.xpath('//*[@id="container"]/div') #获取所有div标签下的链接
+    # print(xin_shu_ju)
+    for to in xin_shu_ju:
+        ks = to.xpath('./a/@href')[0] #获取详情页面链接
+        name_lian_jie = to.xpath('./a/img/@alt')[0] #获取名称
+        xia_zai = requests.get(url='https:'+ks, headers=headers).text #响应详情页面数据
+        nei_shu_ju = etree.HTML(xia_zai)
+        wang_zheng = nei_shu_ju.xpath('//*[@id="down"]/div[2]/ul/li[1]/a/@href')[0] #获取下载链接
+        tb = requests.get(url=wang_zheng, headers=headers).content
+        xia_zia_bao = 'jianlixiazai/' + name_lian_jie+'.rar'
+        fp = open(xia_zia_bao, 'wb')
+        fp.write(tb)
+        print(name_lian_jie, '成功！')
+
+
+
+
+
+
+
+
