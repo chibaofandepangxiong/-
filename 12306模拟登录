@@ -1,0 +1,45 @@
+from selenium.webdriver import Chrome
+from chaojiying import Chaojiying_Client
+import time
+from selenium.webdriver.common.action_chains import ActionChains #导入偏移量，是指可以移动鼠标完成一些列动作
+from selenium.webdriver.chrome.options import Options # 伪装检测，自动化selenium检测
+
+options = Options() #此方法适用于谷歌版本88以上
+options.add_argument('--disable-blink-features=AutomationControlled')
+
+#初始化超级鹰
+chaojiying = Chaojiying_Client('超级鹰用户名', '超级鹰用户名的密码', '96001')	#用户中心>>软件ID 生成一个替换 96001
+
+web = Chrome(executable_path='./chromedriver.exe',options=options)
+
+web.get('https://kyfw.12306.cn/otn/resources/login.html')
+
+time.sleep(2)
+
+web.find_element_by_xpath('/html/body/div[2]/div[2]/ul/li[2]/a').click()
+
+time.sleep(4)
+
+#先处理验证码
+yan_zheng = web.find_element_by_xpath('//*[@id="J-loginImg"]')
+
+#用验证平台验证验证码
+dic = chaojiying.PostPic(yan_zheng.screenshot_as_png,9004)
+result = dic['pic_str'] #获取识别的验证码
+re_list = result.split("|")
+for li in re_list:
+    p_temp = li.split(",")
+    x = int(p_temp[0])
+    y = int(p_temp[1])
+    #偏移鼠标完成点击事件量
+    ActionChains(web).move_to_element_with_offset(yan_zheng, x, y).click().perform() #注意先预定好动作，后要perform()执行
+
+time.sleep(2)
+#输入用户名和验证码，登陆
+web.find_element_by_xpath('//*[@id="J-userName"]').send_keys('用户名')
+web.find_element_by_xpath('//*[@id="J-password"]').send_keys('密码')
+web.find_element_by_xpath('//*[@id="J-login"]').click()
+
+#拖拽操作
+tuo = web.find_element_by_xpath('//*[@id="nc_1__scale_text"]/span')
+ActionChains(web).drag_and_drop_by_offset(tuo,330,0).perform()
