@@ -1,0 +1,22 @@
+import requests
+from lxml import etree
+url ='https://www.bilibili.com/v/popular/rank/all'
+headers ={
+    'user-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36 Edg/89.0.774.50'
+}
+huo_qu = requests.get(url=url,headers=headers).text
+# print(huo_qu)
+jie_xi = etree.HTML(huo_qu)
+li_list = jie_xi.xpath('//*[@id="app"]/div[2]/div[2]/ul/li')
+cun_chu =[]
+for li in li_list:
+    jie_mu_name = li.xpath('./div[2]/div[2]/a/text()')
+    de_fen = li.xpath('./div[2]/div[2]/div[2]/div/text()')
+    shu_ju={
+        "名字":jie_mu_name,
+        "综合得分":de_fen
+    }
+    cun_chu.append(shu_ju)
+
+with open("bilibli.text",'w',encoding='utf-8') as fp:
+    fp.write(str(cun_chu))
