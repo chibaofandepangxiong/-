@@ -43,7 +43,7 @@ for paqu in li_list:
     mp4_jpg = respones['videoInfo']['video_image']
     mp4_url = respones['videoInfo']['videos']['srcUrl']
 
-    # 瞎几把拼接出真实的视频地址
+    # 拼接出真实的视频地址
     c = str(mp4_jpg).split('/')[5][0:-13]
     mp4_url = re.sub('/(\d*)-', '/' + c + '-', mp4_url)
 
